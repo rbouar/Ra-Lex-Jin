@@ -7,9 +7,9 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.12"
-bevy_entitiles = {git = "https://github.com/443eb9/bevy_entitiles.git", branch = "dev", features = ["ldtk", "physics"]}
+bevy_entitiles = {version = "0.4.0", features = ["ldtk", "physics"]}
 bevy_xpbd_2d = "0.3.3"
-bevy_entitiles_derive = {git = "https://github.com/443eb9/bevy_entitiles.git", branch = "dev"}
+bevy_entitiles_derive = "0.3.0"
 bevy-inspector-egui = "0.22.1"
 
 # Enable a small amount of optimization in debug mode

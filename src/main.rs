@@ -1,15 +1,26 @@
-
 use bevy::{
-    app::{App, Plugin, PluginGroup, PostStartup, Startup, Update}, asset::{AssetServer, Assets}, core_pipeline::core_2d::Camera2dBundle, ecs::{
-        component::Component, event::EventReader, query::With, schedule::IntoSystemConfigs, system::{Commands, EntityCommands, Query, Res, ResMut, Resource}
-    }, input::{keyboard::KeyCode, mouse::{MouseButton, MouseMotion, MouseWheel}, Input}, math::Vec2, reflect::Reflect, render::{camera::OrthographicProjection, color::Color, mesh::Mesh, render_resource::FilterMode, texture::ImagePlugin, view::Msaa}, sprite::TextureAtlas, time::Time, transform::components::Transform, utils::HashMap, DefaultPlugins
+    app::{App, PluginGroup, PostStartup, Update},
+    asset::{AssetServer, Assets},
+    core_pipeline::core_2d::Camera2dBundle,
+    ecs::{
+        component::Component,
+        event::EventReader,
+        query::With,
+        system::{Commands, EntityCommands, Query, Res, ResMut},
+    },
+    input::{keyboard::KeyCode, Input},
+    math::Vec2,
+    reflect::Reflect,
+    render::{mesh::Mesh, render_resource::FilterMode, texture::ImagePlugin, view::Msaa},
+    sprite::TextureAtlas,
+    utils::HashMap,
+    DefaultPlugins,
 };
-use bevy_entitiles::tilemap::tile::RawTileAnimation;
 use bevy_entitiles::{
     ldtk::{
         app_ext::LdtkApp,
         events::LdtkEvent,
-        json::{field::FieldInstance, level::EntityInstance, EntityRef},
+        json::{field::FieldInstance, level::EntityInstance},
         layer::physics::LdtkPhysicsLayer,
         resources::{LdtkAdditionalLayers, LdtkAssets, LdtkLevelManager, LdtkLoadConfig},
         sprite::LdtkEntityMaterial,
@@ -17,7 +28,7 @@ use bevy_entitiles::{
     tilemap::physics::PhysicsTile,
     EntiTilesPlugin,
 };
-use bevy_entitiles_derive::{LdtkEntity, LdtkEntityTag, LdtkEnum};
+use bevy_entitiles_derive::{LdtkEntity, LdtkEntityTag};
 use bevy_xpbd_2d::{
     components::{Collider, Friction, LinearVelocity, Mass, RigidBody},
     plugins::{debug::PhysicsDebugConfig, PhysicsDebugPlugin, PhysicsPlugins},
@@ -37,7 +48,7 @@ fn main() {
             PhysicsDebugPlugin::default(),
         ))
         .add_systems(PostStartup, setup)
-        .add_systems(Update, (player_control, events,hot_reload))
+        .add_systems(Update, (player_control, events, hot_reload))
         .insert_resource(Msaa::Off)
         .insert_resource(Gravity(Vec2::ZERO))
         .insert_resource(PhysicsDebugConfig::all())

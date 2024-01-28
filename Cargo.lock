@@ -628,8 +628,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_entitiles"
-version = "0.3.0"
-source = "git+https://github.com/443eb9/bevy_entitiles.git?branch=dev#9d03d931cb22474c65512d5bf2c8bae786ebc84a"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "108e190aff76b5f2a38adb5e6f861ac753e73f0ef3d65a2a0ccf6e33f7d3cf83"
 dependencies = [
  "bevy",
  "bevy_entitiles_derive",
@@ -643,8 +644,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_entitiles_derive"
-version = "0.2.0"
-source = "git+https://github.com/443eb9/bevy_entitiles.git?branch=dev#9d03d931cb22474c65512d5bf2c8bae786ebc84a"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4a195719634757c00dc46b9b530f6c479dcefc26090376ca7c5079801792730"
 dependencies = [
  "proc-macro2",
  "quote",

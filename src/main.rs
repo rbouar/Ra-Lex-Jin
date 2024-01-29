@@ -30,12 +30,19 @@ use bevy_entitiles::{
 };
 use bevy_entitiles_derive::{LdtkEntity, LdtkEntityTag};
 use bevy_xpbd_2d::{
-    components::{Collider, Friction, LinearVelocity, Mass, RigidBody},
-    plugins::{debug::PhysicsDebugConfig, PhysicsDebugPlugin, PhysicsPlugins},
+    components::{
+        Collider, Friction, LinearVelocity, LockedAxes, Mass, Position, RigidBody, Rotation,
+    },
+    math::{Scalar, Vector},
+    plugins::{
+        collision::Collisions, debug::PhysicsDebugConfig, PhysicsDebugPlugin, PhysicsPlugins,
+    },
     resources::Gravity,
 };
+use character_controller::{CharacterControllerBundle, CharacterControllerPlugin};
 use helpers::EntiTilesHelpersPlugin;
 
+mod character_controller;
 mod helpers;
 
 fn main() {
@@ -46,17 +53,18 @@ fn main() {
             EntiTilesHelpersPlugin::default(),
             PhysicsPlugins::default(),
             PhysicsDebugPlugin::default(),
+            CharacterControllerPlugin,
         ))
         .add_systems(PostStartup, setup)
-        .add_systems(Update, (player_control, events, hot_reload))
+        .add_systems(Update, (events))
         .insert_resource(Msaa::Off)
-        .insert_resource(Gravity(Vec2::ZERO))
+        .insert_resource(Gravity(Vector::NEG_Y * 1000.0))
         .insert_resource(PhysicsDebugConfig::all())
         .register_type::<Player>()
         .insert_resource(LdtkLoadConfig {
             file_path: "assets/map.ldtk".to_string(),
             filter_mode: FilterMode::Nearest,
-            ignore_unregistered_entities: true,
+            ignore_unregistered_entities: false,
             ..Default::default()
         })
         .insert_resource(LdtkAdditionalLayers {
@@ -87,30 +95,6 @@ fn setup(mut commands: Commands, mut manager: ResMut<LdtkLevelManager>) {
     manager.load(&mut commands, "Level_0".to_string(), None);
 }
 
-fn hot_reload(
-    input: Res<Input<KeyCode>>,
-    mut manager: ResMut<LdtkLevelManager>,
-    config: Res<LdtkLoadConfig>,
-    mut assets: ResMut<LdtkAssets>,
-    asset_server: Res<AssetServer>,
-    mut atlas_assets: ResMut<Assets<TextureAtlas>>,
-    mut entity_material_assets: ResMut<Assets<LdtkEntityMaterial>>,
-    mut mesh_assets: ResMut<Assets<Mesh>>,
-) {
-    if input.just_pressed(KeyCode::Return) {
-        manager.reload_json(&config);
-        assets.initialize(
-            &config,
-            &manager,
-            &asset_server,
-            &mut atlas_assets,
-            &mut entity_material_assets,
-            &mut mesh_assets,
-        );
-        println!("Hot reloaded!")
-    }
-}
-
 fn events(mut ldtk_events: EventReader<LdtkEvent>) {
     for event in ldtk_events.read() {
         match event {
@@ -121,28 +105,6 @@ fn events(mut ldtk_events: EventReader<LdtkEvent>) {
                 println!("Level unloaded: {}", level.identifier);
             }
         }
-    }
-}
-
-fn player_control(mut query: Query<&mut LinearVelocity, With<Player>>, input: Res<Input<KeyCode>>) {
-    let Ok(mut player) = query.get_single_mut() else {
-        return;
-    };
-    // wasd is taken up by the camera controller.
-    if input.pressed(KeyCode::Left) {
-        player.x = -50.;
-    }
-    if input.pressed(KeyCode::Right) {
-        player.x = 50.;
-    }
-    // I know this is not scientifically correct
-    // because the player will be able to jump infinitely
-    // but I'm lazy to do the detection :p
-    if input.pressed(KeyCode::Up) {
-        player.y = 50.;
-    }
-    if input.pressed(KeyCode::Down) {
-        player.y = -50.;
     }
 }
 
@@ -168,22 +130,14 @@ fn player_spawn(
     // this is takes params that are exactly the same as the LdtkEntity trait
     // you can use this to add more fancy stuff to your entity
     // like adding a collider:
-    let size = Vec2::new(entity_instance.width as f32, entity_instance.height as f32);
+    let width = entity_instance.width as f32;
+    let height = entity_instance.height as f32;
+    let cuboid = Collider::cuboid(width, height);
+
     commands.insert((
-        Collider::convex_hull(vec![
-            Vec2::new(-0.5, 0.) * size,
-            Vec2::new(0.5, 0.) * size,
-            Vec2::new(0.5, 1.) * size,
-            Vec2::new(-0.5, 1.) * size,
-        ])
-        .unwrap(),
-        RigidBody::Kinematic,
-        Friction {
-            dynamic_coefficient: 0.5,
-            static_coefficient: 0.5,
-            ..Default::default()
-        },
-        Mass(100.),
+        // RigidBody::Kinematic,
+        // LockedAxes::ROTATION_LOCKED,
+        CharacterControllerBundle::new(cuboid).with_movement(1250.0, 0.92),
     ));
 }
 

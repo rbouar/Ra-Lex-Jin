@@ -1,12 +1,11 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    window::{PresentMode, WindowTheme},
+};
 use bevy_ecs_ldtk::prelude::*;
-use bevy_ecs_ldtk::LdtkWorldBundle;
+use bevy_xpbd_2d::prelude::*;
 
-use bevy_xpbd_2d::components::Collider;
-use bevy_xpbd_2d::plugins::PhysicsDebugPlugin;
-use bevy_xpbd_2d::plugins::PhysicsPlugins;
-use character_controller::CharacterControllerBundle;
-use character_controller::CharacterControllerPlugin;
+use character_controller::*;
 use helpers::HelpersPlugin;
 
 mod character_controller;
@@ -29,6 +28,7 @@ fn main() {
                 despawn_collision_tile,
                 despawn_door_tile,
                 init_player_camera,
+                level_selection_follow_player,
             ),
         )
         .insert_resource(Msaa::Off)
@@ -120,5 +120,40 @@ impl From<&EntityInstance> for CharacterControllerBundle {
         let collider = Collider::cuboid(width, height);
 
         CharacterControllerBundle::new(collider).with_movement(PLAYER_ACCELERATION, PLAYER_DAMPING)
+    }
+}
+
+fn level_selection_follow_player(
+    players: Query<&GlobalTransform, With<Player>>,
+    levels: Query<(&LevelIid, &GlobalTransform)>,
+    ldtk_projects: Query<&Handle<LdtkProject>>,
+    ldtk_project_assets: Res<Assets<LdtkProject>>,
+    mut level_selection: ResMut<LevelSelection>,
+) {
+    if let Ok(player_transform) = players.get_single() {
+        let ldtk_project = ldtk_project_assets
+            .get(ldtk_projects.single())
+            .expect("ldtk project should be loaded before player is spawned");
+
+        for (level_iid, level_transform) in levels.iter() {
+            let level = ldtk_project
+                .get_raw_level_by_iid(level_iid.get())
+                .expect("level should exist in only project");
+
+            let level_bounds = Rect {
+                min: Vec2::new(
+                    level_transform.translation().x,
+                    level_transform.translation().y,
+                ),
+                max: Vec2::new(
+                    level_transform.translation().x + level.px_wid as f32,
+                    level_transform.translation().y + level.px_hei as f32,
+                ),
+            };
+
+            if level_bounds.contains(player_transform.translation().truncate()) {
+                *level_selection = LevelSelection::Iid(level_iid.clone());
+            }
+        }
     }
 }

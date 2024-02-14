@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_ldtk::LdtkWorldBundle;
-use bevy_xpbd_2d::{math::Vector, prelude::*};
 
 use character_controller::CharacterControllerPlugin;
-use helpers::EntiTilesHelpersPlugin;
+use helpers::HelpersPlugin;
 
 mod character_controller;
 mod helpers;
@@ -14,10 +13,18 @@ fn main() {
         .add_plugins((
             DefaultPlugins.set(ImagePlugin::default_nearest()),
             LdtkPlugin,
-            EntiTilesHelpersPlugin::default(),
+            CharacterControllerPlugin,
+            HelpersPlugin::default(),
         ))
         .add_systems(Startup, setup)
-        .add_systems(Update, (despawn_collision_tile, despawn_door_tile))
+        .add_systems(
+            Update,
+            (
+                despawn_collision_tile,
+                despawn_door_tile,
+                init_player_camera,
+            ),
+        )
         .insert_resource(Msaa::Off)
         .insert_resource(LevelSelection::index(0))
         .insert_resource(LdtkSettings {
@@ -33,9 +40,6 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    // Camera
-    commands.spawn(Camera2dBundle::default());
-
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("map.ldtk"),
         ..Default::default()
@@ -85,11 +89,13 @@ struct PlayerBundle {
     worldly: Worldly,
 }
 
-fn player_initial_position(
-    mut player_query: Query<(&mut Transform, &EntityInstance), Added<Player>>,
-) {
-    let (mut player_transform, entity_instance) = player_query.single_mut();
+fn init_player_camera(mut commands: Commands, player_query: Query<Entity, Added<Player>>) {
+    if let Ok(player_entity) = player_query.get_single() {
+        let mut camera_2d = Camera2dBundle::default();
+        camera_2d.projection.scale = 0.35;
 
-    player_transform.translation.x = entity_instance.world_x.unwrap() as f32;
-    player_transform.translation.y = entity_instance.world_y.unwrap() as f32;
+        commands.entity(player_entity).with_children(|parent| {
+            parent.spawn(camera_2d);
+        });
+    }
 }

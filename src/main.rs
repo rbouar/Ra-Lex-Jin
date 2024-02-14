@@ -28,6 +28,7 @@ fn main() {
         .insert_resource(Msaa::Off)
         .insert_resource(LevelSelection::index(0))
         .insert_resource(LdtkSettings {
+            set_clear_color: SetClearColor::FromLevelBackground,
             level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
                 load_level_neighbors: true,
             },

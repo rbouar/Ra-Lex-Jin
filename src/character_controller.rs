@@ -1,7 +1,9 @@
 // https://github.com/Jondolf/bevy_xpbd/tree/main/crates/bevy_xpbd_2d/examples/kinematic_character_2d
 use bevy::prelude::*;
 use bevy_xpbd_2d::{
-    components::{Collider, ColliderParent, LinearVelocity, Position, RigidBody, Rotation, Sensor},
+    components::{
+        Collider, ColliderParent, LinearVelocity, LockedAxes, Position, RigidBody, Rotation, Sensor,
+    },
     math::{AdjustPrecision, Scalar, Vector2},
     plugins::collision::Collisions,
     SubstepSchedule, SubstepSet,
@@ -38,7 +40,7 @@ pub enum MovementAction {
 }
 
 /// A marker component indicating that an entity is using a character controller.
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct CharacterController;
 
 /// The acceleration used for character movement.
@@ -51,12 +53,13 @@ pub struct MovementDampingFactor(Scalar);
 
 /// A bundle that contains the components needed for a basic
 /// kinematic character controller.
-#[derive(Bundle)]
+#[derive(Bundle, Default)]
 pub struct CharacterControllerBundle {
     character_controller: CharacterController,
     rigid_body: RigidBody,
     collider: Collider,
     movement: MovementBundle,
+    rotation_constraints: LockedAxes,
 }
 
 /// A bundle that contains components for character movement.
@@ -77,7 +80,7 @@ impl MovementBundle {
 
 impl Default for MovementBundle {
     fn default() -> Self {
-        Self::new(30.0, 0.9)
+        Self::new(10000.0, 0.95)
     }
 }
 
@@ -88,6 +91,7 @@ impl CharacterControllerBundle {
             rigid_body: RigidBody::Kinematic,
             collider,
             movement: MovementBundle::default(),
+            rotation_constraints: LockedAxes::ROTATION_LOCKED,
         }
     }
 
@@ -162,10 +166,9 @@ fn movement(
     }
 }
 
-/// Slows down movement in the XZ plane.
+/// Slows down movement.
 fn apply_movement_damping(mut query: Query<(&MovementDampingFactor, &mut LinearVelocity)>) {
     for (damping_factor, mut linear_velocity) in &mut query {
-        // We could use `LinearDamping`, but we don't want to dampen movement along the Y axis
         linear_velocity.x *= damping_factor.0;
         linear_velocity.y *= damping_factor.0;
     }

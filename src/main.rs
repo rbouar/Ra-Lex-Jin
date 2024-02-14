@@ -2,6 +2,10 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_ecs_ldtk::LdtkWorldBundle;
 
+use bevy_xpbd_2d::components::Collider;
+use bevy_xpbd_2d::plugins::PhysicsDebugPlugin;
+use bevy_xpbd_2d::plugins::PhysicsPlugins;
+use character_controller::CharacterControllerBundle;
 use character_controller::CharacterControllerPlugin;
 use helpers::HelpersPlugin;
 
@@ -14,7 +18,9 @@ fn main() {
             DefaultPlugins.set(ImagePlugin::default_nearest()),
             LdtkPlugin,
             CharacterControllerPlugin,
+            PhysicsPlugins::default(),
             HelpersPlugin::default(),
+            PhysicsDebugPlugin::default(),
         ))
         .add_systems(Startup, setup)
         .add_systems(
@@ -88,6 +94,8 @@ struct PlayerBundle {
     sprite_sheet_bundle: SpriteSheetBundle,
     #[worldly]
     worldly: Worldly,
+    #[from_entity_instance]
+    character_controller: CharacterControllerBundle,
 }
 
 fn init_player_camera(mut commands: Commands, player_query: Query<Entity, Added<Player>>) {
@@ -98,5 +106,19 @@ fn init_player_camera(mut commands: Commands, player_query: Query<Entity, Added<
         commands.entity(player_entity).with_children(|parent| {
             parent.spawn(camera_2d);
         });
+    }
+}
+
+const PLAYER_ACCELERATION: f32 = 6_000.;
+const PLAYER_DAMPING: f32 = 0.9;
+
+impl From<&EntityInstance> for CharacterControllerBundle {
+    fn from(entity_instance: &EntityInstance) -> CharacterControllerBundle {
+        let width = entity_instance.width as f32;
+        let height = entity_instance.height as f32;
+
+        let collider = Collider::cuboid(width, height);
+
+        CharacterControllerBundle::new(collider).with_movement(PLAYER_ACCELERATION, PLAYER_DAMPING)
     }
 }

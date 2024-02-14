@@ -1,7 +1,8 @@
 use bevy::{
     prelude::*,
-    window::{PresentMode, WindowTheme},
+    window::{PresentMode, WindowMode},
 };
+
 use bevy_ecs_ldtk::prelude::*;
 use bevy_xpbd_2d::prelude::*;
 
@@ -14,14 +15,33 @@ mod helpers;
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins.set(ImagePlugin::default_nearest()),
+            DefaultPlugins
+                .set(ImagePlugin::default_nearest())
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Ra Lex Jin".into(),
+                        resolution: (1600., 900.).into(),
+                        present_mode: PresentMode::AutoVsync,
+                        mode: WindowMode::Windowed,
+                        // Tells wasm to resize the window according to the available canvas
+                        fit_canvas_to_parent: true,
+                        // Tells wasm not to override default event handling, like F5, Ctrl+R etc.
+                        prevent_default_event_handling: false,
+                        // This will spawn an invisible window
+                        // The window will be made visible in the make_visible() system after 3 frames.
+                        // This is useful when you want to avoid the white window that shows up before the GPU is ready to render the app.
+                        // visible: false,
+                        ..default()
+                    }),
+                    ..default()
+                }),
             LdtkPlugin,
             CharacterControllerPlugin,
             PhysicsPlugins::default(),
             HelpersPlugin::default(),
             PhysicsDebugPlugin::default(),
         ))
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, maximize_window))
         .add_systems(
             Update,
             (
@@ -156,4 +176,9 @@ fn level_selection_follow_player(
             }
         }
     }
+}
+
+fn maximize_window(mut window_query: Query<&mut Window>) {
+    let mut window = window_query.single_mut();
+    window.set_maximized(true);
 }

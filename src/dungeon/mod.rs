@@ -41,7 +41,9 @@ pub struct DoorTileBundle {
     pub door_tile: DoorTile,
 }
 
-fn hide_collisions_layer(mut layer_query: Query<(&mut Visibility, &LayerMetadata), Added<LayerMetadata>>) {
+fn hide_collisions_layer(
+    mut layer_query: Query<(&mut Visibility, &LayerMetadata), Added<LayerMetadata>>,
+) {
     for (mut visibility, layer_metadata) in layer_query.iter_mut() {
         if layer_metadata.identifier == COLLISIONS_LAYER_ID {
             *visibility = Visibility::Hidden;

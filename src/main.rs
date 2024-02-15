@@ -43,6 +43,8 @@ fn main() {
             HelpersPlugin::default(),
             PlayerPlugin,
             DungeonPlugin,
+            // Limit FPS
+            bevy_framepace::FramepacePlugin,
         ))
         .add_systems(Startup, maximize_window)
         .insert_resource(Msaa::Off)

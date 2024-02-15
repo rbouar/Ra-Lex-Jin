@@ -13,7 +13,7 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-pub const PLAYER_ACCELERATION: f32 = 6_000.;
+pub const PLAYER_ACCELERATION: f32 = 2_000.;
 pub const PLAYER_DAMPING: f32 = 0.9;
 
 #[derive(Default, Component)]

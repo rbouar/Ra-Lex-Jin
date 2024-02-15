@@ -7,6 +7,8 @@ use bevy_xpbd_2d::components::{Collider, Friction, RigidBody};
 
 use super::*;
 
+const COLLISION_FRICTION_COEFFICIENT : f32 = 0.9;
+
 /// See https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/systems.rs#L78
 /// Spawns xpbd collisions for the walls of a level
 ///
@@ -157,7 +159,7 @@ pub fn spawn_wall_collision(
                                     * grid_size as f32,
                             ))
                             .insert(RigidBody::Static)
-                            .insert(Friction::new(1.0))
+                            .insert(Friction::new(COLLISION_FRICTION_COEFFICIENT))
                             .insert(Transform::from_xyz(
                                 (wall_rect.left + wall_rect.right + 1) as f32 * grid_size as f32
                                     / 2.,

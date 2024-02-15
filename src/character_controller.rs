@@ -1,5 +1,6 @@
 // https://github.com/Jondolf/bevy_xpbd/tree/main/crates/bevy_xpbd_2d/examples/kinematic_character_2d
 use bevy::prelude::*;
+use bevy_ecs_ldtk::EntityInstance;
 use bevy_xpbd_2d::{
     components::{
         Collider, ColliderParent, LinearVelocity, LockedAxes, Position, RigidBody, Rotation, Sensor,
@@ -8,6 +9,8 @@ use bevy_xpbd_2d::{
     plugins::collision::Collisions,
     SubstepSchedule, SubstepSet,
 };
+
+use crate::player::{PLAYER_ACCELERATION, PLAYER_DAMPING};
 
 pub struct CharacterControllerPlugin;
 
@@ -98,6 +101,17 @@ impl CharacterControllerBundle {
     pub fn with_movement(mut self, acceleration: Scalar, damping: Scalar) -> Self {
         self.movement = MovementBundle::new(acceleration, damping);
         self
+    }
+}
+
+impl From<&EntityInstance> for CharacterControllerBundle {
+    fn from(entity_instance: &EntityInstance) -> CharacterControllerBundle {
+        let width = entity_instance.width as f32;
+        let height = entity_instance.height as f32;
+
+        let collider = Collider::cuboid(width, height);
+
+        CharacterControllerBundle::new(collider).with_movement(PLAYER_ACCELERATION, PLAYER_DAMPING)
     }
 }
 

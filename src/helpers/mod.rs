@@ -7,7 +7,6 @@ use bevy::{
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-
 use self::common::{debug_info_display, DebugFpsText};
 
 pub mod common;
@@ -26,9 +25,7 @@ impl Plugin for HelpersPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_systems(Startup, debug_startup).add_systems(
             Update,
-            (
-                debug_info_display.run_if(on_real_timer(Duration::from_millis(100))),
-            ),
+            (debug_info_display.run_if(on_real_timer(Duration::from_millis(100))),),
         );
 
         app.add_plugins(bevy::diagnostic::FrameTimeDiagnosticsPlugin);
@@ -36,7 +33,6 @@ impl Plugin for HelpersPlugin {
         if self.inspector {
             app.add_plugins(WorldInspectorPlugin::default());
         }
-
     }
 
     fn finish(&self, _app: &mut bevy::prelude::App) {

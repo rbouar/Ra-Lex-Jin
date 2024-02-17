@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use collisions::spawn_wall_collision;
+pub use collisions::*;
 
 mod collisions;
 pub struct DungeonPlugin;

@@ -3,12 +3,24 @@ use bevy_ecs_ldtk::prelude::*;
 
 use crate::character_controller::*;
 
+use self::attack::*;
+
+mod attack;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(CharacterControllerPlugin)
-            .add_systems(Update, (add_player_camera, level_selection_follow_player))
+            .add_systems(
+                Update,
+                (
+                    add_player_camera,
+                    level_selection_follow_player,
+                    player_attack,
+                    fireball_collisions,
+                ),
+            )
             .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }
@@ -30,6 +42,9 @@ pub struct PlayerBundle {
     pub character_controller: CharacterControllerBundle,
 }
 
+#[derive(Default, Component)]
+pub struct PlayerCamera;
+
 /// Add 2D camera following player
 fn add_player_camera(mut commands: Commands, player_query: Query<Entity, Added<Player>>) {
     if let Ok(player_entity) = player_query.get_single() {
@@ -37,7 +52,7 @@ fn add_player_camera(mut commands: Commands, player_query: Query<Entity, Added<P
         camera_2d.projection.scale = 0.35;
 
         commands.entity(player_entity).with_children(|parent| {
-            parent.spawn(camera_2d);
+            parent.spawn((camera_2d, PlayerCamera));
         });
     }
 }

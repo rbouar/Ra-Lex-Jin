@@ -48,6 +48,7 @@ fn main() {
         ))
         .add_systems(Startup, maximize_window)
         .insert_resource(Msaa::Off)
+        .insert_resource(Gravity(Vec2::ZERO))
         .run();
 }
 

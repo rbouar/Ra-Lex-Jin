@@ -5,12 +5,47 @@ use bevy::{
 use bevy_ecs_ldtk::prelude::*;
 use bevy_xpbd_2d::components::{Collider, Friction, RigidBody};
 
-use super::*;
-
 const COLLISION_FRICTION_COEFFICIENT: f32 = 0.9;
+const COLLISIONS_LAYER_ID: &str = "Collision";
+
+pub(super) struct CollisionsPlugin;
+
+impl Plugin for CollisionsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (spawn_wall_collision, hide_collisions_layer))
+            .register_ldtk_int_cell_for_layer::<CollisionTileBundle>(COLLISIONS_LAYER_ID, 1)
+            .register_ldtk_int_cell_for_layer::<DoorTileBundle>(COLLISIONS_LAYER_ID, 2);
+    }
+}
 
 #[derive(Component)]
-pub struct Wall;
+pub struct Terrain;
+
+#[derive(Default, Component)]
+pub struct CollisionTile;
+
+#[derive(Default, Bundle, LdtkIntCell)]
+pub struct CollisionTileBundle {
+    pub collision_tile: CollisionTile,
+}
+
+#[derive(Default, Component)]
+pub struct DoorTile;
+
+#[derive(Default, Bundle, LdtkIntCell)]
+pub struct DoorTileBundle {
+    pub door_tile: DoorTile,
+}
+
+fn hide_collisions_layer(
+    mut layer_query: Query<(&mut Visibility, &LayerMetadata), Added<LayerMetadata>>,
+) {
+    for (mut visibility, layer_metadata) in layer_query.iter_mut() {
+        if layer_metadata.identifier == COLLISIONS_LAYER_ID {
+            *visibility = Visibility::Hidden;
+        }
+    }
+}
 
 /// See https://github.com/Trouv/bevy_ecs_ldtk/blob/main/examples/platformer/systems.rs#L78
 /// Spawns xpbd collisions for the walls of a level
@@ -27,7 +62,7 @@ pub struct Wall;
 /// See the following article for bounds:
 /// Kumar, V. S. A.; Ramesh, H. (2003). "Covering Rectilinear Polygons with Axis-Parallel Rectangles".
 /// SIAM Journal on Computing. 32 (6): 1509. CiteSeerX 10.1.1.20.2664. doi:10.1137/s0097539799358835
-pub fn spawn_wall_collision(
+fn spawn_wall_collision(
     mut commands: Commands,
     wall_query: Query<(&GridCoords, &Parent), Added<CollisionTile>>,
     parent_query: Query<&Parent, Without<CollisionTile>>,
@@ -171,7 +206,7 @@ pub fn spawn_wall_collision(
                                 0.,
                             ))
                             .insert(GlobalTransform::default())
-                            .insert(Wall);
+                            .insert(Terrain);
                     }
                 });
             }

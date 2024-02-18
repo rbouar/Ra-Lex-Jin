@@ -1,9 +1,7 @@
-use std::ops::Sub;
-
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::dungeon::{CollisionTile, Wall};
+use crate::dungeon::collisions::*;
 
 use super::*;
 
@@ -79,7 +77,7 @@ pub fn player_attack(
 pub fn fireball_collisions(
     mut commands: Commands,
     mut collision_event_reader: EventReader<CollisionStarted>,
-    wall_query: Query<With<Wall>>,
+    wall_query: Query<With<Terrain>>,
     projectile_query: Query<With<Projectile>>,
 ) {
     for &CollisionStarted(entity1, entity2) in collision_event_reader.read() {

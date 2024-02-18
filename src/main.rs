@@ -10,7 +10,8 @@ use dungeon::DungeonPlugin;
 use helpers::HelpersPlugin;
 use player::PlayerPlugin;
 
-mod character_controller;
+// mod character_controller;
+mod character_controller_dynamic;
 mod dungeon;
 mod helpers;
 mod player;
@@ -48,7 +49,7 @@ fn main() {
         ))
         .add_systems(Startup, maximize_window)
         .insert_resource(Msaa::Off)
-        .insert_resource(Gravity(Vec2::ZERO))
+        .insert_resource(Gravity::ZERO)
         .run();
 }
 

@@ -1,11 +1,14 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::character_controller::*;
+use crate::character_controller_dynamic::*;
 
 use self::attack::*;
 
 mod attack;
+
+pub const PLAYER_ACCELERATION: f32 = 2_000.;
+pub const PLAYER_DAMPING: f32 = 0.9;
 
 pub struct PlayerPlugin;
 
@@ -24,9 +27,6 @@ impl Plugin for PlayerPlugin {
             .register_ldtk_entity::<PlayerBundle>("Player");
     }
 }
-
-pub const PLAYER_ACCELERATION: f32 = 2_000.;
-pub const PLAYER_DAMPING: f32 = 0.9;
 
 #[derive(Default, Component)]
 pub struct Player;

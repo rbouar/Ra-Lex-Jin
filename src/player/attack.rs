@@ -1,7 +1,10 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::dungeon::collisions::*;
+use crate::{
+    dungeon::collisions::*,
+    mob::{self, Mob},
+};
 
 use super::*;
 
@@ -79,11 +82,17 @@ pub fn fireball_collisions(
     mut collision_event_reader: EventReader<CollisionStarted>,
     wall_query: Query<With<Terrain>>,
     projectile_query: Query<With<Projectile>>,
+    mob_query: Query<With<Mob>>,
 ) {
     for &CollisionStarted(entity1, entity2) in collision_event_reader.read() {
         for (entity1, entity2) in [(entity1, entity2), (entity2, entity1)] {
-            if projectile_query.contains(entity1) && wall_query.contains(entity2) {
-                commands.entity(entity1).despawn_recursive();
+            if projectile_query.contains(entity1) {
+                if wall_query.contains(entity2) {
+                    commands.entity(entity1).despawn_recursive();
+                } else if mob_query.contains(entity2) {
+                    commands.entity(entity1).despawn_recursive();
+                    commands.entity(entity2).despawn_recursive();
+                }
             }
         }
     }

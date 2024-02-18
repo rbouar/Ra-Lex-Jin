@@ -8,12 +8,14 @@ use bevy_xpbd_2d::prelude::*;
 
 use dungeon::DungeonPlugin;
 use helpers::HelpersPlugin;
+use mob::MobPlugin;
 use player::PlayerPlugin;
 
 // mod character_controller;
 mod character_controller_dynamic;
 mod dungeon;
 mod helpers;
+mod mob;
 mod player;
 
 fn main() {
@@ -44,6 +46,7 @@ fn main() {
             HelpersPlugin::default(),
             PlayerPlugin,
             DungeonPlugin,
+            MobPlugin,
             // Limit FPS
             bevy_framepace::FramepacePlugin,
         ))

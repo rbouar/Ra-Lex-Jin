@@ -1,4 +1,4 @@
-use bevy::{ecs::entity, prelude::*};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_xpbd_2d::prelude::*;
 

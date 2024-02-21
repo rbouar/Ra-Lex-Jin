@@ -1,10 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::{
-    dungeon::collisions::*,
-    mob::{self, Mob},
-};
+use crate::{dungeon::collisions::*, mob::Mob};
 
 use super::*;
 

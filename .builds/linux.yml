@@ -9,13 +9,15 @@ packages:
   - pkg-config
   - zip
 sources:
-  - https://git.sr.ht/~rbouar/Ra_Lex_Jin#release
+  - https://git.sr.ht/~rbouar/Ra_Lex_Jin
 environment:
   BINARY: ra_lex_jin
   TARGET: x86_64-unknown-linux-gnu
   PLATFORM: linux
 artifacts: [ "Ra_Lex_Jin/ra_lex_jin_linux.zip" ]
 tasks:
+  - tag: |
+      [[ "$GIT_REF" =~ ^refs/tags/.*$ ]] || complete-build
   - rustup: |
       curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh
       chmod +x rustup.sh
